@@ -5,14 +5,17 @@
  */
 
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <kstring.h>
 
 #define MAGIC		0x0BADC0DE
+#define MAGIC_MASK	0xFFFFFFFF
 #define MAGIC_LEN	sizeof(uint32_t)
 #define LEN_LEN		sizeof(size_t)       
+
+#define MAGICFY(x)        ((MAGIC_MASK & x) | MAGIC)
 
 #define KSTR_GET_MAGIC(x) (*((uint32_t*)x))
 #define KSTR_GET_LEN(x)   (*((size_t*)(x + MAGIC_LEN)))
@@ -53,7 +56,7 @@ const char *kstring_newl(const char *str, size_t len)
 	ret = malloc(MAGIC_LEN + LEN_LEN + len + 1);
 	if(!ret)
 		return NULL;
-	KSTR_GET_MAGIC(ret) = MAGIC & len;
+	KSTR_GET_MAGIC(ret) = MAGICFY(len);
 	KSTR_GET_LEN(ret) = len;
 	strncpy(KSTR_GET_STR(ret), str, len);
 	KSTR_GET_STR(ret)[len] = '\0';
@@ -67,14 +70,14 @@ const char *kstring_newl(const char *str, size_t len)
  *
  * parm str: the string to free
  */
-void kstring_destroy(char *str)
+void kstring_destroy(const char *str)
 {
 	assert(str);
 
 	if(is_kstring(str))
-		free(STR_GET_START(str));
+		free((void*)STR_GET_START(str));
 	else
-		free(str);
+		free((void*)str);
 }/* end: kstring_destroy */
 
 /* is_kstring
@@ -87,8 +90,7 @@ void kstring_destroy(char *str)
 uint8_t is_kstring(const char *str)
 {
 	assert(str);
-
-	return (STR_GET_LEN(str) & MAGIC) == STR_GET_MAGIC(str) && 
+	return MAGICFY(STR_GET_LEN(str)) == STR_GET_MAGIC(str) && 
 			str[STR_GET_LEN(str)] == '\0';
 }/* end: is_kstring */
 
