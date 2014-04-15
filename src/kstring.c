@@ -109,3 +109,31 @@ size_t kstrlen(const char *str)
 		return STR_GET_LEN(str);
 	return strlen(str);
 }/* end: kstrlen */
+
+/* kstrcat
+ * will return a string that is the concatination of the two given strings
+ *
+ * param a: the first string
+ * param b: the second string
+ * return: either the concatination of the strings else NULL
+ *         NULL indicates insufficient memory
+ */
+const char *kstrcat(const char *a, const char *b)
+{
+	char *ret;
+	size_t len, alen;
+
+	assert(a && b);
+	
+	len = (alen = kstrlen(a)) + kstrlen(b);
+	ret = malloc(MAGIC_LEN + LEN_LEN + len + 1);
+	if(!ret)
+		return NULL;
+	KSTR_GET_MAGIC(ret) = MAGICFY(len);
+	KSTR_GET_LEN(ret) = len;
+	strncpy(KSTR_GET_STR(ret), a, alen);
+	strncpy(KSTR_GET_STR(ret) + alen, b, len - alen);
+	KSTR_GET_STR(ret)[len] = '\0';
+
+	return KSTR_GET_STR(ret);
+}/* end: kstrcat */

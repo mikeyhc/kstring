@@ -10,5 +10,6 @@ void kstring_destroy(const char*);
 
 uint8_t is_kstring(const char*);
 size_t kstrlen(const char*);
+const char *kstrcat(const char *, const char *);
 
 #endif
