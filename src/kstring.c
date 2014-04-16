@@ -35,7 +35,7 @@
 const char *kstring_new(const char *str)
 {
 	assert(str);
-	return kstring_newl(str, strlen(str));
+	return kstring_newl(str, kstrlen(str));
 }/* end: kstring_new */
 
 /* kstring_newl
